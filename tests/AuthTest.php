@@ -4,6 +4,7 @@
 namespace App\Tests;
 
 use App\DataFixtures\AppFixtures;
+use App\Service\PaymentService;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,7 +22,12 @@ class AuthTest extends AbstractTest
 
     public function getFixtures(): array
     {
-        return [new AppFixtures(self::$kernel->getContainer()->get('security.password_encoder'))];
+        return [
+            new AppFixtures(
+                self::$kernel->getContainer()->get('security.password_encoder'),
+                self::$kernel->getContainer()->get(PaymentService::class)
+            ),
+        ];
     }
 
     protected function setUp(): void
@@ -32,8 +38,8 @@ class AuthTest extends AbstractTest
 
     public function testAuth(): void
     {
-        //Проверка авторизации
-        // Авторизируемся пользователем, который существует
+        // Проверка авторизации
+        // Авторизируемся существующим пользователем
         $user = [
             'username' => 'user@mail.ru',
             'password' => '123456',
@@ -49,21 +55,19 @@ class AuthTest extends AbstractTest
             $this->serializer->serialize($user, 'json')
         );
 
-        // Проверяем статус ответа
+        // Проверим статус ответа
         $this->assertResponseCode(Response::HTTP_OK, $client->getResponse());
 
-        // Проверяем заголовок ответа, что он в формате json
         self::assertTrue($client->getResponse()->headers->contains(
             'Content-Type',
             'application/json'
         ));
 
-        // Проверяем содержимого ответа
+        // Проверим содержимое ответа
         $json = json_decode($client->getResponse()->getContent(), true);
         self::assertNotEmpty($json['token']);
 
-        //Проверка неуспешной авторизации
-        // Авторизируемся неправильно
+        // Проверка неуспешной авторизации
         $user = [
             'username' => 'user@mail.ru',
             'password' => '142536',
@@ -80,24 +84,22 @@ class AuthTest extends AbstractTest
             $this->serializer->serialize($user, 'json')
         );
 
-        // Проверка статуса ответа, 401
+        // Проверим статус ответа, 401
         $this->assertResponseCode(Response::HTTP_UNAUTHORIZED, $client->getResponse());
 
-        // Проверяем заголовок ответа, что он в формате json
         self::assertTrue($client->getResponse()->headers->contains(
             'Content-Type',
             'application/json'
         ));
 
-        // Проверка содержимого ответа (оишбка)
+        // Проверим содержимое ответа (оишбка)
         $json = json_decode($client->getResponse()->getContent(), true);
         self::assertNotEmpty($json['message']);
     }
 
-    // Тест успешной регистрации нового пользователя
+    // Регистрация нового пользователя
     public function testRegisterSuccessful(): void
     {
-        // Введем данные нового пользователя
         $user = [
             'email' => 'newUser@yandex.ru',
             'password' => 'new123456',
@@ -114,24 +116,23 @@ class AuthTest extends AbstractTest
             $this->serializer->serialize($user, 'json')
         );
 
-        // Проверка статуса ответа, 201
+        // Проверим статус ответа, 201
         $this->assertResponseCode(Response::HTTP_CREATED, $client->getResponse());
 
-        // Проверяем заголовок ответа, что он в формате json
         self::assertTrue($client->getResponse()->headers->contains(
             'Content-Type',
             'application/json'
         ));
 
-        // Проверка содержимого ответа
+        // Проверим содержимое ответа
         $json = json_decode($client->getResponse()->getContent(), true);
         self::assertNotEmpty($json['token']);
     }
 
-    // Тест для неуспешной регистрации
+    // Неудачаня регистрация
     public function testExistUserRegister(): void
     {
-        //Проверка на уже существующего пользователя
+        //Проверим на существующего пользователя
         // Данные пользователя
         $user = [
             'email' => 'user@mail.ru',
@@ -149,20 +150,19 @@ class AuthTest extends AbstractTest
             $this->serializer->serialize($user, 'json')
         );
 
-        // Проверка статуса ответа, 403
+        // Проверим статус ответа, 403
         $this->assertResponseCode(Response::HTTP_FORBIDDEN, $client->getResponse());
 
-        // Проверяем заголовок ответа, что он в формате json
         self::assertTrue($client->getResponse()->headers->contains(
             'Content-Type',
             'application/json'
         ));
 
-        // Проверка содержимого ответа (ошибка)
+        // Проверим содержимое ответа (ошибка)
         $json = json_decode($client->getResponse()->getContent(), true);
         self::assertEquals('Пользователь с данным email уже существует', $json['message']);
 
-        //Проверка валидации полей
+        // Проверим валидацию
         // Данные пользователя, где пароль состоит менее чем из 6-и символов
         $user = [
             'email' => 'newtest@mail.ru',
@@ -180,16 +180,15 @@ class AuthTest extends AbstractTest
             $this->serializer->serialize($user, 'json')
         );
 
-        // Проверка статуса ответа, 400
+        // Проверим статус ответа, 400
         $this->assertResponseCode(Response::HTTP_BAD_REQUEST, $client->getResponse());
 
-        // Проверяем заголовок ответа, что он в формате json
         self::assertTrue($client->getResponse()->headers->contains(
             'Content-Type',
             'application/json'
         ));
 
-        // Проверка содержимого ответа (ошибка)
+        // Проверим содержимое ответа (ошибка)
         $json = json_decode($client->getResponse()->getContent(), true);
         self::assertNotEmpty($json['message']);
     }

@@ -21,6 +21,18 @@ security:
                 check_path: /api/v1/auth
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        refresh:
+            pattern: ^/api/v1/token/refresh
+            stateless: true
+            anonymous: true
+        list:
+            pattern: ^/api/v1/courses$
+            stateless: true
+            anonymous: true
+        course_show:
+            pattern: ^/api/v1/(courses)/[A-Z\d]+$
+            stateless: true
+            anonymous: true
         doc:
             pattern: ^/api/v1/doc
             anonymous: true
@@ -34,10 +46,6 @@ security:
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
-        main:
-            anonymous: true
-            lazy: true
-            provider: app_user_provider
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -49,6 +57,11 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/v1/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/v1/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/v1/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/courses$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/(courses)/[A-Z\d]+$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/courses/new, roles: ["ROLE_SUPER_ADMIN"] }
+        - { path: ^/api/v1/courses/[A-Z\d]+/edit, roles: ["ROLE_SUPER_ADMIN"] }
         - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }

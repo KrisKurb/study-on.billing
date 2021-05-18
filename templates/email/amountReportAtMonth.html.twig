@@ -1,0 +1,47 @@
+{% extends 'email/base.html.twig' %}
+
+{% block title %}
+    Отчет об оплаченных курсах за период {{ startDate }} - {{ endDate }}
+{% endblock %}
+
+{% block body %}
+    <tr>
+        <td style='font: 18px/24px arial; color: #1a1a1a;'>
+            <p>Название курса</p>
+        </td>
+        <td style='font: 18px/24px arial; color: #1a1a1a;'>
+            <p>Тип курса</p>
+        </td>
+        <td style='font: 18px/24px arial; color: #1a1a1a; width: 50px'>
+            <p>Число аренд/покупок</p>
+        </td>
+        <td style='font: 18px/24px arial; color: #1a1a1a;'>
+            <p>Общая сумма</p>
+        </td>
+    </tr>
+    {% for transaction in transactions %}
+        <tr>
+            <td style='font: 18px/24px arial; color: #1a1a1a;'>
+                <p>{{ transaction.title }}</p>
+            </td>
+            <td style='font: 18px/24px arial; color: #1a1a1a;'>
+                {% if transaction.course_type == 1 %}
+                    <p>Аренда</p>
+                {% else %}
+                    <p>Покупка</p>
+                {% endif %}
+            </td>
+            <td style='font: 18px/24px arial; color: #1a1a1a;'>
+                <p>{{ transaction.count }}</p>
+            </td>
+            <td style='font: 18px/24px arial; color: #1a1a1a;'>
+                <p>{{ transaction.sum }}</p>
+            </td>
+        </tr>
+    {% endfor %}
+    <tr style="border: solid 1px #e6e6e6;">
+        <td style='font: 18px/24px arial; color: #1a1a1a;'>
+            <p><strong>Итог: {{ total }}</strong></p>
+        </td>
+    </tr>
+{% endblock %}

@@ -34,7 +34,7 @@ class UserDto
      *     description="Email"
      * )
      * @Serializer\Type("string")
-     * @Assert\Email(message="Email {{ value }} неправильный")
+     * @Assert\Email(message="Email address {{ value }} is not valid")
      */
     private $email;
 

@@ -5,6 +5,7 @@ namespace App\Tests;
 use App\DataFixtures\AppFixtures;
 use App\Entity\User;
 use App\Model\UserDto;
+use App\Service\PaymentService;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,7 +23,12 @@ class UserTest extends AbstractTest
 
     public function getFixtures(): array
     {
-        return [new AppFixtures(self::$kernel->getContainer()->get('security.password_encoder'))];
+        return [
+            new AppFixtures(
+                self::$kernel->getContainer()->get('security.password_encoder'),
+                self::$kernel->getContainer()->get(PaymentService::class)
+            ),
+        ];
     }
 
     protected function setUp(): void

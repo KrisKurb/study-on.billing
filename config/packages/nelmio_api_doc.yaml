@@ -16,6 +16,7 @@ nelmio_api_doc:
         names:
             - { alias: User, type: App\Entity\User }
             - { alias: UserDto, type: App\Model\UserDto }
+            - { alias: CourseDto, type: App\Model\CourseDto }
     areas: # to filter documented areas
         path_patterns:
             - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

@@ -51,12 +51,10 @@ class UserController extends AbstractController
      *              @OA\Property(
      *                  property="code",
      *                  type="string",
-     *                  example="401"
      *              ),
      *              @OA\Property(
      *                  property="message",
      *                  type="string",
-     *                  example="JWT Token не найден"
      *              )
      *          )
      *     )
